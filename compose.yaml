@@ -1,0 +1,47 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    environment:
+      TZ: Asia/Tokyo
+    volumes:
+      - ./src:/app/src
+      - ./mp3:/app/mp3
+    ports:
+      - published: 3000
+        target: 3000
+    depends_on:
+      - postgres
+    restart: always
+  postgres:
+    container_name: postgres
+    image: postgres:9.6
+    ports:
+      - published: 5432
+        target: 5432
+    environment:
+      TZ: Asia/Tokyo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d
+      - ./postgres/data:/var/lib/postgresql/data
+    restart: always
+  nginx:
+    container_name: nginx
+    image: nginx:1.25.2-alpine
+    ports:
+      - published: 80
+        target: 80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/log:/var/log/nginx
+    depends_on:
+      - app
+    restart: always

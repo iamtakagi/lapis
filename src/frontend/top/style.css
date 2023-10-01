@@ -1,0 +1,25 @@
+body {
+    /* 中央寄せコンテナ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 背景色 */
+    background-color: #f5f5f5;
+    /* フォント */
+    font-family: 'Noto Sans JP', sans-serif;
+    /* フォントサイズ */
+    font-size: 16px;
+    /* フォントカラー */
+    color: #333;
+    /* フォントの太さ */
+    font-weight: 400;
+    /* フォントのアンチエイリアス */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* ボックスサイズ */
+    box-sizing: border-box;
+    /* マージン */
+    margin: 0 100px;
+    /* パディング */
+    padding: 0 100px;
+}

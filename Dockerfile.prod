@@ -1,0 +1,58 @@
+FROM node:18-alpine as base
+
+ENV NODE_ENV production
+ENV PNPM_HOME "/pnpm"
+ENV PATH "$PNPM_HOME:$PATH"
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV PUPPETEER_EXECUTABLE_PATH /usr/bin/chromium-browser
+
+RUN apk add --no-cache \
+  curl \
+  ffmpeg \
+  fontconfig \
+  chromium \
+  nss \
+  freetype \
+  harfbuzz \
+  ca-certificates \
+  ttf-freefont \
+  python3 \
+  py3-pip \
+  && pip3 install --upgrade pip \
+  && pip3 install spotdl \
+  && curl -O https://noto-website.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip \
+  && mkdir -p /usr/share/fonts/NotoSansCJKjp \
+  && unzip NotoSansCJKjp-hinted.zip -d /usr/share/fonts/NotoSansCJKjp/ \
+  && rm NotoSansCJKjp-hinted.zip \
+  && fc-cache -fv
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable
+RUN pnpm install
+COPY tsconfig.json ./
+COPY src ./src
+
+FROM base as builder-backend
+
+RUN pnpm run build:backend
+
+FROM base as builder-frontend
+
+COPY webpack.config.ts ./
+RUN pnpm run build:frontend
+COPY public ./public
+
+FROM base
+
+RUN apk --no-cache add tini
+
+ENTRYPOINT ["/sbin/tini", "--"]
+
+COPY --from=builder-backend /app/dist ./dist
+COPY --from=builder-frontend /app/public ./public
+
+EXPOSE 3000
+
+CMD ["pnpm", "node", "/app/lapis/dist"]
