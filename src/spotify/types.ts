@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { zSpotifyError, zSearchResult, zTokenResult, zTrack } from './schema';
 
 export interface Error {
-    message: string;
-    status: number;
+  message: string;
+  status: number;
 }
 
 export type SpotifyError = z.infer<typeof zSpotifyError>;
