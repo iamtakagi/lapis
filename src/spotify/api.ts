@@ -75,7 +75,7 @@ export class SpotifyAPI {
   async getTrack(
     trackId: string,
     market: string = 'JP',
-  ): Promise<{ track?: Track; error?: any }> {
+  ): Promise<{ track?: Track; error?: Error }> {
     trackId = encodeURIComponent(trackId);
     market = encodeURIComponent(market);
     const token = credential.getToken();
