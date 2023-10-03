@@ -1,11 +1,11 @@
 import Koa from 'koa';
-import { setToken, getToken } from '../spotify/token';
 import axios from 'axios';
+import { credential } from '../spotify/credential';
+import { zTokenResult } from '../spotify/schema';
 
 export const tokenMiddleware = async (ctx: Koa.ParameterizedContext, next: Koa.Next) => {
-  const token = getToken();
 
-  if (!token.token || (token.expiresIn && new Date() >= token.expiresIn)) {
+  if (!credential.getToken() || credential.hasExpired()) {
     try {
       const response = await axios.post(
         'http://localhost:3000/token',
@@ -25,8 +25,9 @@ export const tokenMiddleware = async (ctx: Koa.ParameterizedContext, next: Koa.N
         return;
       }
 
-      if (response.data && response.data.access_token) {
-        setToken(response.data.access_token);
+      if (response.data && response.status == 200) {
+        const tokenResult = zTokenResult.parse(response.data);
+        credential.setToken(tokenResult.access_token);
       }
 
       return next();

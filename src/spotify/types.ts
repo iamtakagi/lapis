@@ -1,6 +1,12 @@
 import { z } from 'zod';
-import { error, searchResult, track } from './schema';
+import { zSpotifyError, zSearchResult, zTokenResult, zTrack } from './schema';
 
-export type Error = z.infer<typeof error>;
-export type SearchResult = z.infer<typeof searchResult>;
-export type Track = z.infer<typeof track>;
+export interface Error {
+    message: string;
+    status: number;
+}
+
+export type SpotifyError = z.infer<typeof zSpotifyError>;
+export type TokenResult = z.infer<typeof zTokenResult>;
+export type SearchResult = z.infer<typeof zSearchResult>;
+export type Track = z.infer<typeof zTrack>;

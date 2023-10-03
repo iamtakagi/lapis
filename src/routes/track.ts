@@ -15,8 +15,6 @@ export const track = async (ctx: Koa.ParameterizedContext, next: Koa.Next) => {
 
   let { id } = ctx.params;
 
-  console.log(id);
-
   const errors: string[] = [];
 
   if (!id) {

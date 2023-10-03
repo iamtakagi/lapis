@@ -1,7 +1,8 @@
-import { Token, getToken } from './token';
-
 import axios from 'axios';
-import { SearchResult, Track, Error } from './types';
+import { SearchResult, Track, Error, TokenResult } from './types';
+import { zSpotifyError, zSearchResult, zTokenResult, zTrack } from './schema';
+import { credential } from './credential';
+import fs from 'fs';
 
 export class SpotifyAPI {
   clientId: string;
@@ -21,7 +22,7 @@ export class SpotifyAPI {
     return authKey;
   }
 
-  async getAccessToken(): Promise<{ token?: Token; error?: Error }> {
+  async getAccessToken(): Promise<{ tokenResult?: TokenResult; error?: Error }> {
     const authKey = this.buildAuthKey(this.clientId, this.clientSecret);
 
     const headers = {
@@ -33,10 +34,10 @@ export class SpotifyAPI {
     try {
       const response = await axios.post(this.tokenUrl, form, { headers });
       if (response.data.error) {
-        return { error: response.data.error };
+        return { error: zSpotifyError.parse(response.data).error };
       }
       if (response.data && response.status == 200) {
-        return { token: response.data };
+        return { tokenResult: zTokenResult.parse(response.data) };
       }
       return { error: { message: 'Internal Server Error', status: 500 } };
     } catch (err) {
@@ -54,18 +55,16 @@ export class SpotifyAPI {
     type = encodeURIComponent(type);
     limit = encodeURIComponent(limit);
     market = encodeURIComponent(market);
-    const token = getToken().token;
+    const token = credential.getToken();
     const url = `${this.baseUrl}/search?q=${query}&type=${type}&limit=${limit}&market=${market}`;
-    const headers = { Authorization: `Bearer ${token}` };
 
     try {
-      const response = await axios.get(url, { headers });
-      console.log(response);
+      const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
       if (response.data.error) {
-        return { error: response.data.error };
+        return { error: zSpotifyError.parse(response.data).error };
       }
       if (response.data && response.status == 200) {
-        return { searchResult: response.data };
+        return { searchResult: zSearchResult.parse(response.data) };
       }
       return { error: { message: 'Internal Server Error', status: 500 } };
     } catch (err) {
@@ -76,20 +75,19 @@ export class SpotifyAPI {
   async getTrack(
     trackId: string,
     market: string = 'JP',
-  ): Promise<{ track?: Track; error?: Error }> {
+  ): Promise<{ track?: Track; error?: any }> {
     trackId = encodeURIComponent(trackId);
     market = encodeURIComponent(market);
-    const token = getToken().token;
+    const token = credential.getToken();
     const url = `${this.baseUrl}/tracks/${trackId}?market=${market}`;
-    const headers = { Authorization: `Bearer ${token}` };
 
     try {
-      const response = await axios.get(url, { headers });
+      const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
       if (response.data.error) {
-        return { error: response.data.error };
+        return { error: zSpotifyError.parse(response.data).error };
       }
       if (response.data && response.status == 200) {
-        return { track: response.data };
+        return { track: zTrack.parse(response.data)};
       }
       return { error: { message: 'Internal Server Error', status: 500 } };
     } catch (err) {

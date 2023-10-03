@@ -5,21 +5,17 @@ import { spotify } from '../spotify/api';
 export const token = async (ctx: Koa.ParameterizedContext, next: Koa.Next) => {
   secretMiddleware(ctx, next);
 
-  const { token, error } = await spotify.getAccessToken();
-
-  console.log(token);
+  const { tokenResult, error } = await spotify.getAccessToken();
 
   if (error) {
     ctx.response.status = error.status;
     ctx.response.body = error.message;
-    console.log(error);
     return;
   }
 
-  if (token) {
+  if (tokenResult) {
     ctx.response.status = 200;
-    ctx.response.body = token;
-    console.log(token);
+    ctx.response.body = tokenResult;
     return;
   }
 
