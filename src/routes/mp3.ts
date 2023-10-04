@@ -24,18 +24,18 @@ export const mp3 = async (ctx: Koa.ParameterizedContext, next: Koa.Next) => {
       const start = parseInt(partialStart, 10);
       const end = partialEnd ? parseInt(partialEnd, 10) : totalSize - 1;
       const chunkSize = end - start + 1;
-      ctx.status = 206;
-      ctx.body = fs.createReadStream(filePath, { start, end });
       ctx.set('Content-Type', 'audio/mpeg');
       ctx.set('Content-Range', 'bytes ' + start + '-' + end + '/' + totalSize);
       ctx.set('Accept-Ranges', 'bytes');
       ctx.set('Content-Length', String(chunkSize));
+      ctx.status = 206;
+      ctx.body = fs.createReadStream(filePath, { start, end });
     } else {
-      ctx.status = 200;
-      ctx.body = fs.createReadStream(filePath);
       ctx.set('Content-Type', 'audio/mpeg');
       ctx.set('Content-Length', String(totalSize));
       ctx.set('Content-Disposition', 'attachment; filename=' + ctx.params.trackId + '.mp3');
+      ctx.status = 200;
+      ctx.body = fs.createReadStream(filePath);
     }
   } catch (e) {
     console.error(e);
