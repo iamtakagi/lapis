@@ -1,18 +1,18 @@
 export class Credential {
   private token: string | null;
   private createdAt: Date | null;
-  private expiresIn: Date | null;
+  private expiresAt: Date | null;
 
   constructor() {
     this.token = null;
     this.createdAt = null;
-    this.expiresIn = null;
+    this.expiresAt = null;
   }
 
-  setToken(token: string, now = new Date()): void {
+  setToken(token: string, expiresIn: number, now = new Date()): void {
     this.token = token;
     this.createdAt = now;
-    this.expiresIn = new Date(now.getTime() + 3600 * 1000);
+    this.expiresAt = new Date(now.getTime() + expiresIn * 1000);
   }
 
   getToken(): string | null {
@@ -23,15 +23,15 @@ export class Credential {
     return this.createdAt;
   }
 
-  getExpiresIn(): Date | null {
-    return this.expiresIn;
+  getExpiresAt(): Date | null {
+    return this.expiresAt;
   }
 
   hasExpired(): boolean {
-    if (this.expiresIn == null) {
+    if (this.expiresAt == null) {
       return true;
     }
-    return new Date() >= this.expiresIn;
+    return new Date() >= this.expiresAt;
   }
 }
 

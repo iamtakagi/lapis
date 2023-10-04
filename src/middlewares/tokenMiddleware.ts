@@ -27,7 +27,7 @@ export const tokenMiddleware = async (ctx: Koa.ParameterizedContext, next: Koa.N
 
       if (response.data && response.status == 200) {
         const tokenResult = zTokenResult.parse(response.data);
-        credential.setToken(tokenResult.access_token);
+        credential.setToken(tokenResult.access_token, tokenResult.expires_in);
       }
 
       return next();
